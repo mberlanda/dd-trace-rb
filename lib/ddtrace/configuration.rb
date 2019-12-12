@@ -24,7 +24,11 @@ module Datadog
     end
 
     def runtime_metrics
-      tracer.writer.runtime_metrics
+      if tracer.writer.respond_to?(:runtime_metrics)
+        tracer.writer.runtime_metrics
+      else
+        @runtime_metrics ||= Runtime::Metrics.new
+      end
     end
   end
 end
