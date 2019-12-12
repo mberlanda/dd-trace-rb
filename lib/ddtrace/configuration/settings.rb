@@ -108,6 +108,7 @@ module Datadog
       end
 
       def runtime_metrics(options = nil)
+        # TODO: Resolve this from the Writer or the RuntimeMetrics worker
         runtime_metrics = get_option(:tracer).writer.runtime_metrics
         return runtime_metrics if options.nil?
 
