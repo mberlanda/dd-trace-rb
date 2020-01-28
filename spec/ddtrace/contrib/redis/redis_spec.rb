@@ -60,12 +60,10 @@ RSpec.describe 'Redis test' do
 
     shared_examples_for 'a span with common tags' do
       it do
-        aggregate_failures do
-          expect(span).to_not be nil
-          expect(span.get_tag('out.host')).to eq(host)
-          expect(span.get_tag('out.port')).to eq(port)
-          expect(span.get_tag('out.redis_db')).to eq(0)
-        end
+        expect(span).to_not be nil
+        expect(span.get_tag('out.host')).to eq(host)
+        expect(span.get_tag('out.port')).to eq(port)
+        expect(span.get_tag('out.redis_db')).to eq(0)
       end
 
       it_behaves_like 'analytics for integration' do
@@ -77,10 +75,8 @@ RSpec.describe 'Redis test' do
     context 'roundtrip' do
       # Run a roundtrip
       before(:each) do
-        aggregate_failures do
-          expect(redis.set('FOO', 'bar')).to eq('OK')
-          expect(redis.get('FOO')).to eq('bar')
-        end
+        expect(redis.set('FOO', 'bar')).to eq('OK')
+        expect(redis.get('FOO')).to eq('bar')
       end
 
       it { expect(all_spans).to have(2).items }
@@ -89,12 +85,10 @@ RSpec.describe 'Redis test' do
         subject(:span) { all_spans[-1] }
 
         it do
-          aggregate_failures do
-            expect(span.name).to eq('redis.command')
-            expect(span.service).to eq('redis')
-            expect(span.resource).to eq('SET FOO bar')
-            expect(span.get_tag('redis.raw_command')).to eq('SET FOO bar')
-          end
+          expect(span.name).to eq('redis.command')
+          expect(span.service).to eq('redis')
+          expect(span.resource).to eq('SET FOO bar')
+          expect(span.get_tag('redis.raw_command')).to eq('SET FOO bar')
         end
 
         it_behaves_like 'a span with common tags'
@@ -104,12 +98,10 @@ RSpec.describe 'Redis test' do
         subject(:span) { all_spans[0] }
 
         it do
-          aggregate_failures do
-            expect(span.name).to eq('redis.command')
-            expect(span.service).to eq('redis')
-            expect(span.resource).to eq('GET FOO')
-            expect(span.get_tag('redis.raw_command')).to eq('GET FOO')
-          end
+          expect(span.name).to eq('redis.command')
+          expect(span.service).to eq('redis')
+          expect(span.resource).to eq('GET FOO')
+          expect(span.get_tag('redis.raw_command')).to eq('GET FOO')
         end
 
         it_behaves_like 'a span with common tags'
@@ -127,10 +119,8 @@ RSpec.describe 'Redis test' do
         subject(:span) { all_spans[-1] }
 
         it do
-          aggregate_failures do
-            expect(span.resource).to eq('SET FOO bar')
-            expect(span.get_tag('redis.raw_command')).to eq('SET FOO bar')
-          end
+          expect(span.resource).to eq('SET FOO bar')
+          expect(span.get_tag('redis.raw_command')).to eq('SET FOO bar')
         end
       end
     end
@@ -157,13 +147,11 @@ RSpec.describe 'Redis test' do
         subject(:span) { all_spans[-1] }
 
         it do
-          aggregate_failures do
-            expect(span.get_metric('redis.pipeline_length')).to eq(5)
-            expect(span.name).to eq('redis.command')
-            expect(span.service).to eq('redis')
-            expect(span.resource).to eq("SET v1 0\nSET v2 0\nINCR v1\nINCR v2\nINCR v2")
-            expect(span.get_tag('redis.raw_command')).to eq("SET v1 0\nSET v2 0\nINCR v1\nINCR v2\nINCR v2")
-          end
+          expect(span.get_metric('redis.pipeline_length')).to eq(5)
+          expect(span.name).to eq('redis.command')
+          expect(span.service).to eq('redis')
+          expect(span.resource).to eq("SET v1 0\nSET v2 0\nINCR v1\nINCR v2\nINCR v2")
+          expect(span.get_tag('redis.raw_command')).to eq("SET v1 0\nSET v2 0\nINCR v1\nINCR v2\nINCR v2")
         end
 
         it_behaves_like 'a span with common tags'
@@ -187,16 +175,14 @@ RSpec.describe 'Redis test' do
         subject(:span) { all_spans[-1] }
 
         it do
-          aggregate_failures do
-            expect(span.name).to eq('redis.command')
-            expect(span.service).to eq('redis')
-            expect(span.resource).to eq('THIS_IS_NOT_A_REDIS_FUNC THIS_IS_NOT_A_VALID_ARG')
-            expect(span.get_tag('redis.raw_command')).to eq('THIS_IS_NOT_A_REDIS_FUNC THIS_IS_NOT_A_VALID_ARG')
-            expect(span.status).to eq(1)
-            expect(span.get_tag('error.msg')).to eq("ERR unknown command 'THIS_IS_NOT_A_REDIS_FUNC'")
-            expect(span.get_tag('error.type')).to eq('Redis::CommandError')
-            expect(span.get_tag('error.stack').length).to be >= 3
-          end
+          expect(span.name).to eq('redis.command')
+          expect(span.service).to eq('redis')
+          expect(span.resource).to eq('THIS_IS_NOT_A_REDIS_FUNC THIS_IS_NOT_A_VALID_ARG')
+          expect(span.get_tag('redis.raw_command')).to eq('THIS_IS_NOT_A_REDIS_FUNC THIS_IS_NOT_A_VALID_ARG')
+          expect(span.status).to eq(1)
+          expect(span.get_tag('error.msg')).to eq("ERR unknown command 'THIS_IS_NOT_A_REDIS_FUNC'")
+          expect(span.get_tag('error.type')).to eq('Redis::CommandError')
+          expect(span.get_tag('error.stack').length).to be >= 3
         end
 
         it_behaves_like 'a span with common tags'
@@ -210,13 +196,11 @@ RSpec.describe 'Redis test' do
         before { expect(redis.set('K', 'x' * 500)).to eq('OK') }
 
         it do
-          aggregate_failures do
-            expect(all_spans).to have(1).items
-            expect(span.name).to eq('redis.command')
-            expect(span.service).to eq('redis')
-            expect(span.resource).to eq('SET K ' + 'x' * 47 + '...')
-            expect(span.get_tag('redis.raw_command')).to eq('SET K ' + 'x' * 47 + '...')
-          end
+          expect(all_spans).to have(1).items
+          expect(span.name).to eq('redis.command')
+          expect(span.service).to eq('redis')
+          expect(span.resource).to eq('SET K ' + 'x' * 47 + '...')
+          expect(span.get_tag('redis.raw_command')).to eq('SET K ' + 'x' * 47 + '...')
         end
 
         it_behaves_like 'a span with common tags'
@@ -226,20 +210,16 @@ RSpec.describe 'Redis test' do
         subject(:span) { all_spans.first }
 
         before do
-          aggregate_failures do
-            expect(redis.set('K', 'x' * 500)).to eq('OK')
-            expect(redis.get('K')).to eq('x' * 500)
-          end
+          expect(redis.set('K', 'x' * 500)).to eq('OK')
+          expect(redis.get('K')).to eq('x' * 500)
         end
 
         it do
-          aggregate_failures do
-            expect(all_spans).to have(2).items
-            expect(span.name).to eq('redis.command')
-            expect(span.service).to eq('redis')
-            expect(span.resource).to eq('GET K')
-            expect(span.get_tag('redis.raw_command')).to eq('GET K')
-          end
+          expect(all_spans).to have(2).items
+          expect(span.name).to eq('redis.command')
+          expect(span.service).to eq('redis')
+          expect(span.resource).to eq('GET K')
+          expect(span.get_tag('redis.raw_command')).to eq('GET K')
         end
 
         it_behaves_like 'a span with common tags'
@@ -253,13 +233,11 @@ RSpec.describe 'Redis test' do
         before { redis.auth(password) }
 
         it do
-          aggregate_failures do
-            expect(all_spans).to have(1).items
-            expect(span.name).to eq('redis.command')
-            expect(span.service).to eq('redis')
-            expect(span.resource).to eq('AUTH ?')
-            expect(span.get_tag('redis.raw_command')).to eq('AUTH ?')
-          end
+          expect(all_spans).to have(1).items
+          expect(span.name).to eq('redis.command')
+          expect(span.service).to eq('redis')
+          expect(span.resource).to eq('AUTH ?')
+          expect(span.get_tag('redis.raw_command')).to eq('AUTH ?')
         end
       end
     end
