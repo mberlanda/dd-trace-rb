@@ -22,8 +22,10 @@ RSpec.describe 'Redis replace method test' do
   end
 
   it do
-    expect(call_without_datadog_method).to_not be nil
-    expect(redis).to receive(:call).once.and_call_original
+    aggregate_failures do
+      expect(call_without_datadog_method).to_not be nil
+      expect(redis).to receive(:call).once.and_call_original
+    end
     redis.call('ping', 'hello world')
   end
 end
